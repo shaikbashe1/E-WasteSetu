@@ -14,7 +14,8 @@ class DBHelper {
       onCreate: (db, version) async {
         await db.execute('''
           CREATE TABLE lots(
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            local_id INTEGER PRIMARY KEY AUTOINCREMENT,
+            server_id TEXT,
             lot_ref TEXT UNIQUE,
             material TEXT,
             sub_category TEXT,
@@ -25,13 +26,17 @@ class DBHelper {
             estimated_value_low REAL,
             estimated_value_high REAL,
             status TEXT DEFAULT 'DRAFT',
+            sync_status TEXT DEFAULT 'PENDING',
             created_at TEXT,
-            synced INTEGER DEFAULT 0
+            updated_at TEXT,
+            version INTEGER DEFAULT 1,
+            retry_count INTEGER DEFAULT 0
           )
         ''');
         await db.execute('''
           CREATE TABLE transactions(
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            local_id INTEGER PRIMARY KEY AUTOINCREMENT,
+            server_id TEXT,
             lot_id INTEGER,
             recycler_id INTEGER,
             quoted_price REAL,
@@ -41,7 +46,11 @@ class DBHelper {
             payment_status TEXT DEFAULT 'PENDING',
             status TEXT DEFAULT 'PENDING',
             timestamp TEXT,
-            synced INTEGER DEFAULT 0
+            sync_status TEXT DEFAULT 'PENDING',
+            created_at TEXT,
+            updated_at TEXT,
+            version INTEGER DEFAULT 1,
+            retry_count INTEGER DEFAULT 0
           )
         ''');
         await db.execute('''
