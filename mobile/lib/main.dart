@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'screens/registration_screen.dart';
+import 'presentation/onboarding/registration_screen.dart';
 
 void main() {
   runApp(const KabadiwalaApp());
