@@ -18,4 +18,4 @@ class SyncService {
       print('Sync successful');
     }
   }
-}\n
+}

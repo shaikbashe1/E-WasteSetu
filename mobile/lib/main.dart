@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'screens/splash_screen.dart';
+import 'screens/registration_screen.dart';
 
 void main() {
   runApp(const KabadiwalaApp());
@@ -16,7 +16,7 @@ class KabadiwalaApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.green),
         useMaterial3: true,
       ),
-      home: const SplashScreen(),
+      home: const RegistrationScreen(),
     );
   }
-}\n
+}

@@ -39,4 +39,4 @@ class LanguageScreen extends StatelessWidget {
       ),
     );
   }
-}\n
+}

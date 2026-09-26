@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'create_lot_screen.dart';
+import 'safety_screen.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -18,6 +19,19 @@ class HomeScreen extends StatelessWidget {
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
+            const Card(
+              child: Padding(
+                padding: EdgeInsets.all(16.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text('Total Earnings', style: TextStyle(fontSize: 18)),
+                    Text('\$150.00', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.green)),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(height: 20),
             ElevatedButton.icon(
               style: ElevatedButton.styleFrom(
                 minimumSize: const Size(double.infinity, 80),
@@ -30,39 +44,20 @@ class HomeScreen extends StatelessWidget {
               label: const Text('CREATE NEW LOT', style: TextStyle(fontSize: 24)),
             ),
             const SizedBox(height: 20),
-            Expanded(
-              child: GridView.count(
-                crossAxisCount: 2,
-                crossAxisSpacing: 16,
-                mainAxisSpacing: 16,
-                children: [
-                  _buildMenuCard(Icons.currency_rupee, "Today's Prices"),
-                  _buildMenuCard(Icons.factory, "Find Recycler"),
-                  _buildMenuCard(Icons.history, "My Transactions"),
-                  _buildMenuCard(Icons.warning, "Safety"),
-                ],
+            ElevatedButton.icon(
+              style: ElevatedButton.styleFrom(
+                minimumSize: const Size(double.infinity, 60),
+                backgroundColor: Colors.orange.shade100,
               ),
+              onPressed: () {
+                Navigator.push(context, MaterialPageRoute(builder: (_) => const SafetyScreen()));
+              },
+              icon: const Icon(Icons.warning, size: 30),
+              label: const Text('Safety Instructions', style: TextStyle(fontSize: 20)),
             ),
           ],
         ),
       ),
     );
   }
-
-  Widget _buildMenuCard(IconData icon, String title) {
-    return Card(
-      elevation: 4,
-      child: InkWell(
-        onTap: () {},
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(icon, size: 50, color: Colors.green),
-            const SizedBox(height: 10),
-            Text(title, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-          ],
-        ),
-      ),
-    );
-  }
-}\n
+}

@@ -4,4 +4,4 @@ sqlalchemy==2.0.21
 pydantic==2.4.2
 pydantic-settings==2.0.3
 alembic==1.12.0
-python-multipart==0.0.6\n
+python-multipart==0.0.6
