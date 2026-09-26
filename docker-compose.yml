@@ -1,33 +1,40 @@
 version: '3.8'
+
 services:
   db:
-    image: postgres:15
+    image: postgis/postgis:15-3.3
     environment:
-      POSTGRES_USER: kabadiwala
+      POSTGRES_USER: postgres
       POSTGRES_PASSWORD: password
-      POSTGRES_DB: kabadiwaladb
+      POSTGRES_DB: kabadiwala
     ports:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    restart: unless-stopped
 
   backend:
     build: ./backend
     ports:
       - "8000:8000"
+    environment:
+      - DATABASE_URL=postgresql://postgres:password@db:5432/kabadiwala
+      - REDIS_URL=redis://redis:6379/0
     depends_on:
       - db
-    environment:
-      - SQLALCHEMY_DATABASE_URL=postgresql://kabadiwala:password@db/kabadiwaladb
-
-  web:
-    build: 
-      context: ./web
-      dockerfile: Dockerfile
-    ports:
-      - "3000:3000"
-    depends_on:
-      - backend
+      - redis
+    volumes:
+      - ./backend:/app
+    restart: unless-stopped
 
 volumes:
   postgres_data:
+  redis_data:

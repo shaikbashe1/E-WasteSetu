@@ -1,15 +1,12 @@
-from fastapi import FastAPI, Depends, HTTPException
-from sqlalchemy.orm import Session
-from . import models, schemas
-from .database import engine, get_db
-from .services import ai_service
-import uuid
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+from .database import engine
+from . import models
 
+# Ensure tables are created (for prototype only, use Alembic in prod)
 models.Base.metadata.create_all(bind=engine)
 
-from fastapi.middleware.cors import CORSMiddleware
-
-app = FastAPI(title="Kabadiwala SIH Prototype API")
+app = FastAPI(title="E-WasteSetu API", description="Production API Gateway for Kabadiwala App")
 
 app.add_middleware(
     CORSMiddleware,
@@ -19,68 +16,49 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Placeholder Routers for the required endpoints
+@app.get("/auth")
+def auth(): return {"status": "auth service"}
+
+@app.get("/collectors")
+def get_collectors(): return {"status": "collectors service"}
+
+@app.get("/materials")
+def get_materials(): return {"status": "materials service"}
+
+@app.get("/lots")
+def get_lots(): return {"status": "lots service"}
+
+@app.get("/prices")
+def get_prices(): return {"status": "price service"}
+
+@app.get("/recyclers")
+def get_recyclers(): return {"status": "recyclers service"}
+
+@app.get("/matching")
+def match_recyclers(): return {"status": "matching engine"}
+
+@app.get("/transactions")
+def get_transactions(): return {"status": "transaction service"}
+
+@app.get("/handover")
+def handover(): return {"status": "handover service"}
+
+@app.get("/payments")
+def payments(): return {"status": "payment service"}
+
+@app.get("/sync")
+def sync(): return {"status": "offline sync engine"}
+
+@app.get("/ai")
+def ai(): return {"status": "AI classification & valuation engine"}
+
+@app.get("/safety")
+def safety(): return {"status": "safety content"}
+
+@app.get("/analytics")
+def analytics(): return {"status": "analytics & BI"}
+
 @app.get("/")
 def read_root():
-    return {"status": "ok", "message": "Kabadiwala API is running"}
-
-@app.post("/collectors", response_model=schemas.Collector)
-def create_collector(collector: schemas.CollectorCreate, db: Session = Depends(get_db)):
-    db_collector = models.Collector(**collector.model_dump())
-    db.add(db_collector)
-    db.commit()
-    db.refresh(db_collector)
-    return db_collector
-
-@app.post("/lots", response_model=schemas.Lot)
-def create_lot(lot: schemas.LotCreate, db: Session = Depends(get_db)):
-    # AI Valuation Mock
-    estimate = ai_service.estimate_value(lot.material, lot.weight, "default_location")
-    
-    db_lot = models.Lot(
-        **lot.model_dump(),
-        estimated_value_low=estimate['low'],
-        estimated_value_high=estimate['high'],
-        status="POSTED"
-    )
-    db.add(db_lot)
-    db.commit()
-    db.refresh(db_lot)
-    return db_lot
-
-@app.get("/lots", response_model=list[schemas.Lot])
-def get_lots(db: Session = Depends(get_db)):
-    return db.query(models.Lot).all()
-
-@app.post("/recyclers", response_model=schemas.Recycler)
-def create_recycler(recycler: schemas.RecyclerCreate, db: Session = Depends(get_db)):
-    db_recycler = models.Recycler(**recycler.model_dump())
-    db.add(db_recycler)
-    db.commit()
-    db.refresh(db_recycler)
-    return db_recycler
-
-@app.get("/recyclers", response_model=list[schemas.Recycler])
-def get_recyclers(db: Session = Depends(get_db)):
-    return db.query(models.Recycler).all()
-
-@app.post("/transactions", response_model=schemas.Transaction)
-def create_transaction(txn: schemas.TransactionCreate, db: Session = Depends(get_db)):
-    # Anomaly detection before creating
-    if ai_service.detect_anomaly(txn.quoted_price, 10): # dummy weight
-        print("Anomaly detected! Price is unusual.")
-
-    db_txn = models.Transaction(**txn.model_dump())
-    db.add(db_txn)
-    
-    # Update lot status
-    lot = db.query(models.Lot).filter(models.Lot.id == txn.lot_id).first()
-    if lot:
-        lot.status = "MATCHED"
-        
-    db.commit()
-    db.refresh(db_txn)
-    return db_txn
-
-@app.get("/transactions", response_model=list[schemas.Transaction])
-def get_transactions(db: Session = Depends(get_db)):
-    return db.query(models.Transaction).all()
+    return {"status": "ok", "message": "E-WasteSetu API Gateway is running"}

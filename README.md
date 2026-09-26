@@ -1,94 +1,33 @@
-# E-WasteSetu (Kabadiwala)
+# E-WasteSetu
 
-A vernacular, offline-first digital bridge connecting informal e-waste collectors with authorized recyclers through fair price discovery, AI-assisted valuation, recycler matching, digital traceability, and transaction records.
+A digital bridge between informal e-waste collectors and formal recycling ecosystems.
 
-## Features
+## Complete System Architecture
 
-- **Collector application:** Lightweight, low-literacy friendly mobile app.
-- **E-waste lot creation:** Capture images and select materials easily.
-- **Material categorization & Price discovery:** AI-assisted estimates and transparent local market prices.
-- **Value estimation:** Range-based valuation powered by historical data.
-- **Authorized recycler discovery & matching:** Find verified recyclers based on distance and materials.
-- **Digital handover & Traceability:** QR/reference-based secure handover and records.
-- **Earnings ledger & Transaction history:** Track pending and completed payments.
-- **Safety guidance:** Visual and audio instructions for safe handling.
-- **Hindi/Marathi/English support:** Multilingual and vernacular-first.
-- **Offline-first functionality:** Complete operations without internet, syncs automatically when online.
+E-WasteSetu employs a robust, production-ready architecture designed for offline-first resilience, traceability, dynamic price discovery, and data-driven AI on edge devices.
 
-## Project Structure
+### 📱 Client Layer
+1. **Collector Mobile Application**: Built with Flutter, Dart, SQLite + Drift. Uses TensorFlow Lite for on-device edge ML classification without internet dependency.
+2. **Recycler Portal**: React + TypeScript web app for recycler onboarding, bidding, and transaction management.
+3. **Admin Panel**: React dashboard for complete ecosystem visibility and anomaly detection.
 
-The repository is modular and structured as follows:
+### ☁️ Backend Architecture
+- **API Gateway**: Built with FastAPI.
+- **Microservices**: Independent routing for Auth, Lots, Prices, Recycler Matching, Handover, and Sync.
+- **AI/ML Layer**: XGBoost for price prediction, Isolation Forest for anomaly detection.
 
-```
-E-WasteSetu/
-├── backend/          # FastAPI Python Backend (APIs, Database Models, AI Services)
-├── mobile/           # Flutter Mobile Application (Collector App)
-├── web/              # React Dashboards (Recycler & Admin Panels)
-├── docker-compose.yml
-└── README.md
-```
+### 💾 Storage & Data
+- **PostgreSQL + PostGIS**: Core relational data and geospatial querying for recycler matching.
+- **Redis**: Low-latency caching for dashboards and current market prices.
+- **Object Storage**: S3/Supabase for lot images, verification documents, and QR handover records.
 
-## Installation
-
-### Backend (Python/FastAPI)
-```bash
-cd backend
-pip install -r requirements.txt
-```
-
-### Mobile (Flutter)
-```bash
-cd mobile
-flutter pub get
-flutter run
-```
-
-### Web (React/Vite)
-```bash
-cd web
-npm install
-```
+### 🔄 Offline-First Sync
+The mobile application uses a local SQLite database to store all transactions when offline. When internet is restored, the **Sync Engine** reconciles local data (`local_id`) with the server (`server_id`), using standard Conflict-Free Replicated Data Type (CRDT) principles and version checking.
 
 ## Running Locally
 
-To run the entire system using Docker:
+To spin up the entire production stack (PostgreSQL + PostGIS, Redis, FastAPI):
+
 ```bash
 docker-compose up --build
 ```
-
-To run individual components manually:
-
-**Backend:**
-```bash
-cd backend
-uvicorn app.main:app --reload
-```
-
-**Web:**
-```bash
-cd web
-npm run dev
-```
-
-## Environment Variables
-
-Create a `.env` file in the `backend/` directory:
-
-```env
-# .env.example
-DATABASE_URL=postgresql://kabadiwala:password@localhost/kabadiwaladb
-AI_CONFIDENCE_THRESHOLD=0.75
-SECRET_KEY=your_super_secret_key_here
-```
-
-## Demo
-
-To launch the prototype/demo:
-1. Start the backend server (`uvicorn app.main:app --reload`).
-2. Run the React Web Dashboard (`npm run dev`) on `http://localhost:3000`.
-3. Launch the Flutter mobile app in an emulator (`flutter run`).
-4. You can use the mock "Continue as Demo Collector" login to test the offline creation flow.
-
-## SIH Project
-
-**E-WasteSetu** is designed as a Smart India Hackathon (SIH) prototype. It tackles the critical challenge of connecting India's informal e-waste collectors with authorized recyclers to ensure formal, safe, and traceable recycling of electronic waste.
