@@ -1,5 +1,10 @@
 import { useState } from 'react';
-import { supabase } from '../lib/supabase';
+import { auth } from '../lib/firebase';
+import { 
+  signInWithEmailAndPassword, 
+  createUserWithEmailAndPassword, 
+  sendPasswordResetEmail 
+} from 'firebase/auth';
 import { Leaf } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
@@ -19,18 +24,11 @@ export default function LoginPage() {
 
     try {
       if (isSignUp) {
-        const { error: signUpError } = await supabase.auth.signUp({
-          email,
-          password,
-        });
-        if (signUpError) throw signUpError;
-        alert('Check your email for the login link!');
+        await createUserWithEmailAndPassword(auth, email, password);
+        alert('Account created! Logging you in...');
+        navigate('/');
       } else {
-        const { error: signInError } = await supabase.auth.signInWithPassword({
-          email,
-          password,
-        });
-        if (signInError) throw signInError;
+        await signInWithEmailAndPassword(auth, email, password);
         // On success, AuthContext will update and App.tsx will route based on role
         navigate('/');
       }
@@ -49,8 +47,7 @@ export default function LoginPage() {
     setLoading(true);
     setError(null);
     try {
-      const { error } = await supabase.auth.resetPasswordForEmail(email);
-      if (error) throw error;
+      await sendPasswordResetEmail(auth, email);
       alert("Password reset email sent!");
     } catch (err: any) {
       setError(err.message);
@@ -66,7 +63,7 @@ export default function LoginPage() {
           <Leaf size={64} />
         </div>
         <h2 className="text-center text-3xl font-extrabold text-gray-900">
-          Secure Login
+          Secure Login (Firebase)
         </h2>
         <p className="mt-2 text-center text-sm text-gray-600">
           E-WasteSetu Authentication Platform

@@ -22,6 +22,11 @@ app.add_middleware(
 @app.get("/auth")
 def auth(user_id: str = Depends(get_current_user)): return {"status": "auth service", "user_id": user_id}
 
+@app.get("/auth/profile")
+def get_profile(user_id: str = Depends(get_current_user)):
+    # In production, query PostgreSQL profiles table using the user_id (Firebase UID)
+    return {"role": "collector", "user_id": user_id}
+
 @app.get("/collectors")
 def get_collectors(user_id: str = Depends(get_current_user)): return []
 

@@ -9,5 +9,4 @@ geoalchemy2
 python-multipart
 python-jose[cryptography]
 passlib[bcrypt]
-pyjwt
-supabase
+firebase-admin

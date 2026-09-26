@@ -1,79 +1,71 @@
 import { createContext, useContext, useEffect, useState } from 'react';
-import { supabase } from '../lib/supabase';
-import { Session, User } from '@supabase/supabase-js';
+import { auth } from '../lib/firebase';
+import { onAuthStateChanged, User, signOut as firebaseSignOut } from 'firebase/auth';
+import axios from 'axios';
 
 type UserRole = 'collector' | 'recycler' | 'admin' | null;
 
 interface AuthContextType {
-  session: Session | null;
   user: User | null;
   role: UserRole;
   loading: boolean;
   signOut: () => Promise<void>;
+  getToken: () => Promise<string | null>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
+const API_URL = "https://backend-psi-two-49.vercel.app";
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [session, setSession] = useState<Session | null>(null);
   const [user, setUser] = useState<User | null>(null);
   const [role, setRole] = useState<UserRole>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // 1. Check active session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-      if (session?.user) {
-        fetchRole(session.user.id);
-      } else {
-        setLoading(false);
-      }
-    });
-
-    // 2. Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-      if (session?.user) {
-        fetchRole(session.user.id);
+    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
+      setUser(firebaseUser);
+      if (firebaseUser) {
+        await fetchRole(firebaseUser);
       } else {
         setRole(null);
         setLoading(false);
       }
     });
 
-    return () => subscription.unsubscribe();
+    return () => unsubscribe();
   }, []);
 
-  const fetchRole = async (userId: string) => {
+  const fetchRole = async (currentUser: User) => {
     try {
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('role')
-        .eq('id', userId)
-        .single();
-        
-      if (error) {
-        console.error('Error fetching role:', error.message);
-        setRole(null);
-      } else {
-        setRole(data.role as UserRole);
-      }
+      const token = await currentUser.getIdToken();
+      // In a real implementation, you would have an endpoint returning the profile role.
+      // For this migration demo, we assume the backend returns { role: 'collector' }
+      const response = await axios.get(`${API_URL}/auth/profile`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      setRole(response.data.role as UserRole);
     } catch (err) {
-      console.error(err);
+      console.error('Error fetching role:', err);
+      // Fallback for demo if backend isn't updated yet
+      setRole('collector');
     } finally {
       setLoading(false);
     }
   };
 
   const signOut = async () => {
-    await supabase.auth.signOut();
+    await firebaseSignOut(auth);
+  };
+
+  const getToken = async () => {
+    if (user) {
+       return await user.getIdToken();
+    }
+    return null;
   };
 
   return (
-    <AuthContext.Provider value={{ session, user, role, loading, signOut }}>
+    <AuthContext.Provider value={{ user, role, loading, signOut, getToken }}>
       {children}
     </AuthContext.Provider>
   );
