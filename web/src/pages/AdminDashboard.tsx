@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { AlertTriangle, Users, Activity, BarChart2, ShieldAlert, FileText, Database, Shield, BookOpen, CheckCircle } from 'lucide-react';
+import { AlertTriangle, Users, Activity, BarChart2, ShieldAlert, FileText, Database, Shield, BookOpen } from 'lucide-react';
 
 export default function AdminDashboard() {
   const [activeTab, setActiveTab] = useState('Fraud/Anomaly Alerts');
