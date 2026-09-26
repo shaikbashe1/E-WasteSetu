@@ -6,8 +6,6 @@ psycopg2-binary
 alembic
 redis
 geoalchemy2
-scikit-learn
-xgboost
 python-multipart
 python-jose[cryptography]
 passlib[bcrypt]
