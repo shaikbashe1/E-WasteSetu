@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Package, Clock, CheckCircle } from 'lucide-react';
 import axios from 'axios';
 
-const API_URL = "http://localhost:8000";
+const API_URL = "https://backend-psi-two-49.vercel.app";
 
 export default function RecyclerDashboard() {
   const [lots, setLots] = useState<any[]>([]);
