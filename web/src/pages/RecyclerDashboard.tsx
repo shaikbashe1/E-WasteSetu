@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Package, Clock, CheckCircle } from 'lucide-react';
 import axios from 'axios';
+import { supabase } from '../lib/supabase';
 
 const API_URL = "https://backend-psi-two-49.vercel.app";
 
@@ -14,7 +15,10 @@ export default function RecyclerDashboard() {
 
   const fetchLots = async () => {
     try {
-      const response = await axios.get(`${API_URL}/lots`);
+      const { data: { session } } = await supabase.auth.getSession();
+      const response = await axios.get(`${API_URL}/lots`, {
+        headers: { Authorization: `Bearer ${session?.access_token}` }
+      });
       setLots(response.data);
       setLoading(false);
     } catch (error) {
@@ -28,10 +32,13 @@ export default function RecyclerDashboard() {
       const offer = prompt("Enter your offer price (₹):");
       if (!offer) return;
       
+      const { data: { session } } = await supabase.auth.getSession();
       await axios.post(`${API_URL}/transactions`, {
         lot_id: lotId,
         recycler_id: 1, // Mock recycler ID
         quoted_price: parseFloat(offer)
+      }, {
+        headers: { Authorization: `Bearer ${session?.access_token}` }
       });
       alert("Offer submitted successfully!");
       fetchLots();

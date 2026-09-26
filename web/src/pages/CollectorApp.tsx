@@ -1,8 +1,5 @@
 import { useState } from 'react';
-import { Camera, Upload, IndianRupee, MapPin, CheckCircle, Smartphone } from 'lucide-react';
-import axios from 'axios';
-
-const API_URL = "https://backend-psi-two-49.vercel.app";
+import { Camera, Upload, IndianRupee, CheckCircle, Smartphone } from 'lucide-react';
 
 export default function CollectorDashboard() {
   const [step, setStep] = useState(1);

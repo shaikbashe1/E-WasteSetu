@@ -1,7 +1,8 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from .database import engine
 from . import models
+from .auth import get_current_user
 import uuid
 
 # Ensure tables are created (for prototype only, use Alembic in prod)
@@ -19,16 +20,16 @@ app.add_middleware(
 
 # Placeholder Routers for the required endpoints
 @app.get("/auth")
-def auth(): return {"status": "auth service"}
+def auth(user_id: str = Depends(get_current_user)): return {"status": "auth service", "user_id": user_id}
 
 @app.get("/collectors")
-def get_collectors(): return []
+def get_collectors(user_id: str = Depends(get_current_user)): return []
 
 @app.get("/materials")
-def get_materials(): return []
+def get_materials(user_id: str = Depends(get_current_user)): return []
 
 @app.get("/lots")
-def get_lots():
+def get_lots(user_id: str = Depends(get_current_user)):
     # Return mock lots so the React frontend works!
     return [
         {
@@ -52,11 +53,11 @@ def get_lots():
     ]
 
 @app.post("/transactions")
-def create_transaction(txn: dict):
+def create_transaction(txn: dict, user_id: str = Depends(get_current_user)):
     return {"status": "success", "transaction": txn}
 
 @app.get("/prices")
-def get_prices(): return {"status": "price service"}
+def get_prices(user_id: str = Depends(get_current_user)): return {"status": "price service"}
 
 @app.get("/recyclers")
 def get_recyclers(): return []

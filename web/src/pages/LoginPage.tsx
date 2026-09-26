@@ -1,84 +1,152 @@
 import { useState } from 'react';
+import { supabase } from '../lib/supabase';
+import { Leaf } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 export default function LoginPage() {
-  const [role, setRole] = useState('recycler');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [isSignUp, setIsSignUp] = useState(false);
+  
+  const navigate = useNavigate();
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (role === 'admin') window.location.href = '/admin';
-    if (role === 'recycler') window.location.href = '/dashboard';
-    if (role === 'collector') window.location.href = '/collector';
+    setLoading(true);
+    setError(null);
+
+    try {
+      if (isSignUp) {
+        const { error: signUpError } = await supabase.auth.signUp({
+          email,
+          password,
+        });
+        if (signUpError) throw signUpError;
+        alert('Check your email for the login link!');
+      } else {
+        const { error: signInError } = await supabase.auth.signInWithPassword({
+          email,
+          password,
+        });
+        if (signInError) throw signInError;
+        // On success, AuthContext will update and App.tsx will route based on role
+        navigate('/');
+      }
+    } catch (err: any) {
+      setError(err.message || 'Authentication failed');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handlePasswordReset = async () => {
+    if (!email) {
+      setError("Please enter your email first to reset password.");
+      return;
+    }
+    setLoading(true);
+    setError(null);
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(email);
+      if (error) throw error;
+      alert("Password reset email sent!");
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
         <div className="flex justify-center text-green-600 mb-4">
-          <svg className="w-16 h-16" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-          </svg>
+          <Leaf size={64} />
         </div>
         <h2 className="text-center text-3xl font-extrabold text-gray-900">
-          Welcome to E-WasteSetu
+          Secure Login
         </h2>
         <p className="mt-2 text-center text-sm text-gray-600">
-          Digital Bridge for Informal E-Waste Collectors
+          E-WasteSetu Authentication Platform
         </p>
       </div>
 
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
         <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
-          <form className="space-y-6" onSubmit={handleLogin}>
+          <form className="space-y-6" onSubmit={handleAuth}>
             
-            <div>
-              <label className="block text-sm font-medium text-gray-700">Select Role</label>
-              <select 
-                className="mt-1 block w-full pl-3 pr-10 py-3 text-base border-gray-300 focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm rounded-md border-2"
-                value={role}
-                onChange={(e) => setRole(e.target.value)}
-              >
-                <option value="collector">Informal Collector (Mobile App Preview)</option>
-                <option value="recycler">Authorized Recycler</option>
-                <option value="admin">System Administrator</option>
-              </select>
-            </div>
+            {error && (
+              <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded text-sm">
+                {error}
+              </div>
+            )}
 
             <div>
               <label className="block text-sm font-medium text-gray-700">
-                Phone Number / Email
+                Email Address
               </label>
               <div className="mt-1">
                 <input
-                  type="text"
+                  type="email"
                   required
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
                   className="appearance-none block w-full px-3 py-3 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm"
-                  defaultValue="demo_user_123"
+                  placeholder="Enter your email"
                 />
               </div>
             </div>
 
             <div>
               <label className="block text-sm font-medium text-gray-700">
-                Password / OTP
+                Password
               </label>
               <div className="mt-1">
                 <input
                   type="password"
                   required
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
                   className="appearance-none block w-full px-3 py-3 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm"
-                  defaultValue="password123"
+                  placeholder="Enter your password"
                 />
+              </div>
+            </div>
+
+            <div className="flex items-center justify-between">
+              <div className="text-sm">
+                <button
+                  type="button"
+                  onClick={handlePasswordReset}
+                  className="font-medium text-green-600 hover:text-green-500"
+                >
+                  Forgot your password?
+                </button>
               </div>
             </div>
 
             <div>
               <button
                 type="submit"
-                className="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-bold text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+                disabled={loading}
+                className="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-bold text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                Sign in to Platform
+                {loading ? 'Processing...' : (isSignUp ? 'Create Account' : 'Sign In')}
               </button>
             </div>
+            
+            <div className="mt-6 text-center">
+              <button
+                type="button"
+                onClick={() => setIsSignUp(!isSignUp)}
+                className="text-sm font-medium text-gray-600 hover:text-gray-900"
+              >
+                {isSignUp ? 'Already have an account? Sign in' : "Don't have an account? Sign up"}
+              </button>
+            </div>
+
           </form>
         </div>
       </div>
