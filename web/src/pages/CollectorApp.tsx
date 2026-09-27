@@ -108,8 +108,13 @@ export default function CollectorDashboard() {
               {image && <img src={image} className="w-full h-48 object-cover rounded-xl shadow-inner" alt="Scrap" />}
               
               <div className="bg-blue-50 border border-blue-200 p-4 rounded-xl">
-                <p className="text-xs text-blue-600 font-bold uppercase tracking-wider mb-1">AI Classification Result</p>
-                <h3 className="text-xl font-bold text-gray-800">{category}</h3>
+                <p className="text-xs text-blue-600 font-bold uppercase tracking-wider mb-1">AI Classification Result (Tap to edit)</p>
+                <input 
+                  type="text" 
+                  className="w-full bg-transparent text-xl font-bold text-gray-800 border-b-2 border-transparent focus:border-blue-400 focus:outline-none" 
+                  value={category}
+                  onChange={(e) => setCategory(e.target.value)}
+                />
               </div>
 
               <div className="bg-green-50 border border-green-200 p-4 rounded-xl flex items-center gap-4">
