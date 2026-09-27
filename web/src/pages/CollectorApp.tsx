@@ -10,6 +10,19 @@ export default function CollectorDashboard() {
   const [priceRange, setPriceRange] = useState('');
   const [weight, setWeight] = useState('');
   const [trackingId, setTrackingId] = useState('LOT-PENDING');
+  const [language, setLanguage] = useState('English');
+
+  const translations: Record<string, { title: string, desc: string, btn: string }> = {
+    English: { title: "Scan E-Waste", desc: "Take a photo of the scrap material to get instant AI pricing.", btn: "Open Camera" },
+    Hindi: { title: "ई-कचरा स्कैन करें", desc: "तुरंत AI मूल्य प्राप्त करने के लिए कबाड़ की एक फोटो लें।", btn: "कैमरा खोलें" },
+    Telugu: { title: "ఇ-వేస్ట్ స్కాన్ చేయండి", desc: "తక్షణ AI ధర పొందడానికి స్క్రాప్ మెటీరియల్ ఫోటో తీయండి.", btn: "కెమెరా తెరవండి" },
+    Marathi: { title: "ई-कचरा स्कॅन करा", desc: "त्वरित AI किंमत मिळवण्यासाठी भंगार साहित्याचा फोटो घ्या.", btn: "कॅमेरा उघडा" },
+    Tamil: { title: "மின் கழிவுகளை ஸ்கேன் செய்", desc: "உடனடி AI விலையைப் பெற ஸ்கிராப் பொருளின் புகைப்படத்தை எடுக்கவும்.", btn: "கேமராவை திற" },
+    Kannada: { title: "ಇ-ತ್ಯಾಜ್ಯವನ್ನು ಸ್ಕ್ಯಾನ್ ಮಾಡಿ", desc: "ತ್ವರಿತ AI ಬೆಲೆ ಪಡೆಯಲು ಸ್ಕ್ರ್ಯಾಪ್ ವಸ್ತುವಿನ ಫೋಟೋ ತೆಗೆದುಕೊಳ್ಳಿ.", btn: "ಕ್ಯಾಮೆರಾ ತೆರೆಯಿರಿ" },
+    Bengali: { title: "ই-বর্জ্য স্ক্যান করুন", desc: "তাত্ক্ষণিক AI মূল্য পেতে স্ক্র্যাপ উপাদানের একটি ছবি তুলুন।", btn: "ক্যামেরা খুলুন" },
+    Gujarati: { title: "ઈ-વેસ્ટ સ્કેન કરો", desc: "ત્વરિત AI કિંમત મેળવવા માટે ભંગાર સામગ્રીનો ફોટો લો.", btn: "કેમેરા ખોલો" }
+  };
+  const t = translations[language] || translations['English'];
 
   // Dynamically calculate price based on material string
   useEffect(() => {
@@ -84,23 +97,34 @@ export default function CollectorDashboard() {
         {/* Header */}
         <div className="bg-green-600 p-4 text-white shadow-md flex justify-between items-center">
           <h1 className="text-xl font-bold tracking-wide">KABADIWALA App</h1>
-          <Smartphone size={20} />
+          <div className="flex items-center gap-3">
+             <select 
+               className="bg-green-700 text-white text-xs rounded border-none p-1 outline-none font-semibold cursor-pointer"
+               value={language}
+               onChange={(e) => setLanguage(e.target.value)}
+             >
+               {Object.keys(translations).map(lang => (
+                 <option key={lang} value={lang}>{lang}</option>
+               ))}
+             </select>
+             <Smartphone size={20} />
+          </div>
         </div>
 
         <div className="p-6 flex-1 flex flex-col">
           
           {step === 1 && (
-            <div className="flex-1 flex flex-col items-center justify-center text-center space-y-6">
+            <div className="flex-1 flex flex-col items-center justify-center text-center space-y-6 relative">
               <div className="bg-green-100 p-6 rounded-full">
                 <Camera className="text-green-600" size={64} />
               </div>
               <div>
-                <h2 className="text-2xl font-bold text-gray-800">Scan E-Waste</h2>
-                <p className="text-gray-500 mt-2">Take a photo of the scrap material to get instant AI pricing.</p>
+                <h2 className="text-2xl font-bold text-gray-800">{t.title}</h2>
+                <p className="text-gray-500 mt-2 px-4">{t.desc}</p>
               </div>
               <label className="bg-green-600 text-white w-full py-4 rounded-xl font-bold text-lg flex justify-center items-center gap-2 cursor-pointer shadow-lg hover:bg-green-700 active:scale-95 transition">
                 <Camera size={24} />
-                Open Camera
+                {t.btn}
                 <input type="file" accept="image/*" capture="environment" className="hidden" onChange={handleImageUpload} />
               </label>
             </div>
