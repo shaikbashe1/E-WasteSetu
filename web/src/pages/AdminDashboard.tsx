@@ -22,7 +22,7 @@ export default function AdminDashboard() {
       {/* Sidebar */}
       <aside className="w-64 bg-slate-800 text-gray-300 flex flex-col hidden md:flex">
         <div className="p-4 bg-slate-900 border-b border-slate-700">
-          <h2 className="text-xl font-bold text-white tracking-wide">SIH ADMIN</h2>
+          <h2 className="text-xl font-bold text-white tracking-wide">ADMIN</h2>
         </div>
         <nav className="flex-1 py-4 space-y-1 overflow-y-auto">
           {tabs.map((tab) => (
