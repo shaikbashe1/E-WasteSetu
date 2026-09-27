@@ -1,5 +1,7 @@
 import { useState } from 'react';
 import { Camera, Upload, IndianRupee, CheckCircle, Smartphone } from 'lucide-react';
+import axios from 'axios';
+import { useAuth } from '../contexts/AuthContext';
 
 export default function CollectorDashboard() {
   const [step, setStep] = useState(1);
@@ -23,14 +25,33 @@ export default function CollectorDashboard() {
     }
   };
 
+  const { getToken } = useAuth();
+  
   const handleCreateLot = async () => {
     if (!weight) return alert("Please enter weight");
     setStep(4); // uploading
     
-    // In a real app we'd POST to backend, but we'll mock the success screen for speed
-    setTimeout(() => {
+    try {
+      const token = await getToken();
+      // Extract prices from priceRange e.g. "₹180 - ₹220 / kg"
+      const prices = priceRange.replace(/[^0-9-]/g, '').split('-');
+      const low = parseInt(prices[0]) * parseFloat(weight);
+      const high = parseInt(prices[1] || prices[0]) * parseFloat(weight);
+
+      await axios.post("https://backend-psi-two-49.vercel.app/lots", {
+        material: category,
+        weight: parseFloat(weight),
+        estimated_value_low: low,
+        estimated_value_high: high
+      }, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
       setStep(5); // Success
-    }, 1000);
+    } catch (error) {
+      console.error(error);
+      alert("Error syncing to backend.");
+      setStep(3); // Go back to form
+    }
   };
 
   return (
