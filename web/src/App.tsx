@@ -7,11 +7,11 @@ import { Leaf } from 'lucide-react';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 
 function ProtectedRoute({ children, allowedRoles }: { children: React.ReactNode, allowedRoles?: string[] }) {
-  const { session, loading, role } = useAuth();
+  const { user, loading, role } = useAuth();
   
   if (loading) return <div className="min-h-screen flex items-center justify-center">Loading session...</div>;
   
-  if (!session) return <Navigate to="/login" replace />;
+  if (!user) return <Navigate to="/login" replace />;
   
   if (allowedRoles && role && !allowedRoles.includes(role)) {
     return <div className="min-h-screen flex items-center justify-center flex-col gap-4">
@@ -42,9 +42,9 @@ function GlobalHeader() {
 }
 
 function RouteSwitcher() {
-  const { session, role, loading } = useAuth();
+  const { user, role, loading } = useAuth();
   if (loading) return null;
-  if (!session) return <Navigate to="/login" replace />;
+  if (!user) return <Navigate to="/login" replace />;
   
   if (role === 'admin') return <Navigate to="/admin" replace />;
   if (role === 'recycler') return <Navigate to="/dashboard" replace />;

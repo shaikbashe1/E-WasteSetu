@@ -65,7 +65,7 @@ export default function CollectorDashboard() {
               <label className="bg-green-600 text-white w-full py-4 rounded-xl font-bold text-lg flex justify-center items-center gap-2 cursor-pointer shadow-lg hover:bg-green-700 active:scale-95 transition">
                 <Camera size={24} />
                 Open Camera
-                <input type="file" accept="image/*" className="hidden" onChange={handleImageUpload} />
+                <input type="file" accept="image/*" capture="environment" className="hidden" onChange={handleImageUpload} />
               </label>
             </div>
           )}
