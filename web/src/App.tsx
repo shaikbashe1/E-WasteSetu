@@ -16,10 +16,7 @@ function ProtectedRoute({ children, allowedRoles }: { children: React.ReactNode,
   const currentRole = localStorage.getItem('demo_override_role') || apiRole;
 
   if (allowedRoles && currentRole && !allowedRoles.includes(currentRole)) {
-    return <div className="min-h-screen flex items-center justify-center flex-col gap-4">
-      <h2 className="text-2xl font-bold text-red-600">Access Denied</h2>
-      <p>Your assigned role "{currentRole}" is not authorized for this page.</p>
-    </div>;
+    return <Navigate to="/" replace />;
   }
   
   return <>{children}</>;
