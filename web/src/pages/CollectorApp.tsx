@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Camera, Upload, IndianRupee, CheckCircle, Smartphone } from 'lucide-react';
 import axios from 'axios';
 import { useAuth } from '../contexts/AuthContext';
@@ -9,6 +9,19 @@ export default function CollectorDashboard() {
   const [category, setCategory] = useState('Analyzing...');
   const [priceRange, setPriceRange] = useState('');
   const [weight, setWeight] = useState('');
+  const [trackingId, setTrackingId] = useState('LOT-PENDING');
+
+  // Dynamically calculate price based on material string
+  useEffect(() => {
+    const mat = category.toLowerCase();
+    if (mat.includes('pcb') || mat.includes('circuit')) setPriceRange('₹180 - ₹220 / kg');
+    else if (mat.includes('copper') || mat.includes('wire')) setPriceRange('₹450 - ₹550 / kg');
+    else if (mat.includes('battery') || mat.includes('lithium')) setPriceRange('₹80 - ₹120 / kg');
+    else if (mat.includes('laptop') || mat.includes('computer')) setPriceRange('₹200 - ₹300 / kg');
+    else if (mat.includes('phone') || mat.includes('mobile')) setPriceRange('₹300 - ₹500 / kg');
+    else if (mat.includes('analyzing')) setPriceRange('');
+    else setPriceRange('₹50 - ₹100 / kg');
+  }, [category]);
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -38,7 +51,7 @@ export default function CollectorDashboard() {
       const low = parseInt(prices[0]) * parseFloat(weight);
       const high = parseInt(prices[1] || prices[0]) * parseFloat(weight);
 
-      await axios.post("https://backend-psi-two-49.vercel.app/lots", {
+      const response = await axios.post("https://backend-psi-two-49.vercel.app/lots", {
         material: category,
         weight: parseFloat(weight),
         estimated_value_low: low,
@@ -46,6 +59,8 @@ export default function CollectorDashboard() {
       }, {
         headers: { Authorization: `Bearer ${token}` }
       });
+      
+      setTrackingId(response.data.lot_ref);
       setStep(5); // Success
     } catch (error) {
       console.error(error);
@@ -165,7 +180,7 @@ export default function CollectorDashboard() {
                
                <div className="bg-gray-100 p-4 rounded-lg w-full text-left border border-gray-200 mt-6">
                  <p className="text-xs text-gray-500 uppercase font-bold">Tracking ID</p>
-                 <p className="font-mono font-bold text-gray-800">LOT-T84M9-92K</p>
+                 <p className="font-mono font-bold text-gray-800">{trackingId}</p>
                </div>
 
                <button 
